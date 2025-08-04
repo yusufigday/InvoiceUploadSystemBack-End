@@ -8,7 +8,7 @@ public class SQLManager {
     private static final String USERNAME = "root";
     private static final String PASSWORD = "1234";
 
-    private static Connection getConnection() throws SQLException {
+    public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(CONNECTION_URL, USERNAME, PASSWORD);
     }
 
@@ -28,26 +28,6 @@ public class SQLManager {
         return ps.executeUpdate();
     }
 
-    public ResultSet selectUser(String query) throws SQLException {
-        ResultSet rs = null;
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
-
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                long id = rs.getLong("id_product");
-                String recipeSeriNo = rs.getString("recipeSeriNo");
-                String musteriNo = rs.getString("MusteriNo");
-                String urunNo = rs.getString("UrunNo");
-
-                System.out.println("ID: " + id + ", Name: " + recipeSeriNo + ",Fiyatı:" + musteriNo + ", Miktarı:" + urunNo);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return executeQuery(query);
-
-    }
 
     public int updateUser(String query) throws SQLException {
         return executeUpdate(query);
