@@ -11,6 +11,8 @@ repositories {
 
 dependencies {
     implementation group: 'org.json', name: 'json', version: '20200518'
+    implementation 'mysql:mysql-connector-java:8.0.33'
+
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
 }
