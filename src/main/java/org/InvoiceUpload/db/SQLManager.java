@@ -4,7 +4,7 @@ import java.sql.*;
 
 public class SQLManager {
 
-    private static final String CONNECTION_URL = "jdbc:mysql://localhost:3306/sampledb";
+    private static final String CONNECTION_URL = "jdbc:mysql://localhost:3306/upload_system";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "1234";
 

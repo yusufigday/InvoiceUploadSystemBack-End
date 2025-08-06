@@ -7,7 +7,6 @@ import org.InvoiceUpload.service.ItemService;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.util.stream.Collectors;
 
 public class ItemController implements HttpHandler {
 
@@ -35,10 +34,11 @@ public class ItemController implements HttpHandler {
 
         JSONObject json = new JSONObject(body);
 
-        int idItems =  json.getInt("id_items");
-        String urunAdi = json.getString("urun_adi");
+        int idItems =  json.getInt("items_id");
+        String urunAdi = json.getString("name");
+        int price = json.getInt("price");
 
-        Item item = new Item(idItems, urunAdi);
+        Item item = new Item(idItems, urunAdi, price);
         boolean success = itemService.addItem(item);
 
         String response = success ? "Item eklendi." : " Item eklenirken hata olustu.";
@@ -57,7 +57,8 @@ public class ItemController implements HttpHandler {
         for (Item item : items) {
             JSONObject json  = new JSONObject();
             json.put("id_items", item.getIdItems());
-            json.put("urun_adi", item.getUrunAdi());
+            json.put("urun_adi", item.getName());
+            json.put("price", item.getPrice());
             jsonArray.put(json);
         }
 
@@ -67,9 +68,6 @@ public class ItemController implements HttpHandler {
         OutputStream os = exchange.getResponseBody();
         os.write(responseBytes);
         os.close();
-
-
-
 
 
     }

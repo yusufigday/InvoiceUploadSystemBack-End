@@ -2,14 +2,14 @@ package org.InvoiceUpload.controller;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import org.InvoiceUpload.model.Product;
-import org.InvoiceUpload.service.ProductService;
+import org.InvoiceUpload.model.Invoice;
+import org.InvoiceUpload.service.InvoiceService;
 import org.json.JSONObject;
 
 import java.io.*;
 
-public class ProductController implements HttpHandler {
-    private ProductService productService = new ProductService();
+public class InvoiceController implements HttpHandler {
+    private InvoiceService invoiceService = new InvoiceService();
 
 
         @Override
@@ -21,7 +21,7 @@ public class ProductController implements HttpHandler {
             } else if (method.equalsIgnoreCase("GET")) {
                 handleGet(exchange);
             } else {
-                exchange.sendResponseHeaders(405, -1); // Method Not Allowed
+                exchange.sendResponseHeaders(405, -1);
             }
         }
 
@@ -32,16 +32,16 @@ public class ProductController implements HttpHandler {
 
             JSONObject json = new JSONObject(body);
 
-            int idProduct = json.getInt("id_product");
-            String adi = json.getString("Adı");
-            double fiyat = json.getDouble("Fiyatı");
-            int miktar = json.getInt("Miktarı");
-            double tutar = json.getDouble("Tutar");
+            int idInvoice = json.getInt("invoice_id");
+            String date = json.getString("date");
+            double totalBeforeDiscount = json.getDouble("totalBeforeDiscount");
+            int discount = json.getInt("discount");
+            double totalAfterDiscount = json.getDouble("totalAfterDiscount");
 
-            Product product = new Product(idProduct, adi, fiyat, miktar, tutar);
-            boolean success = productService.addProduct(product);
+            Invoice invoice = new Invoice(idInvoice, date, totalBeforeDiscount, discount, totalAfterDiscount);
+            boolean success = invoiceService.addInvoice(invoice);
 
-            String response = success ? "Product eklendi." : "Product eklenirken hata oluştu.";
+            String response = success ? "Invoice added." : "An error occurred while adding an invoice.";
             byte[] responseBytes = response.getBytes("UTF-8");
             exchange.sendResponseHeaders(success ? 200 : 500, responseBytes.length);
             OutputStream os = exchange.getResponseBody();
@@ -50,16 +50,16 @@ public class ProductController implements HttpHandler {
         }
 
         private void handleGet (HttpExchange exchange) throws IOException {
-            var products = productService.getAllProducts();
+            var invoice = invoiceService.getAllInvoice();
 
             org.json.JSONArray jsonArray = new org.json.JSONArray();
-            for (Product p : products) {
+            for (Invoice i : invoice) {
                 JSONObject json = new JSONObject();
-                json.put("id_product", p.getIdProduct());
-                json.put("adi", p.getAdi());
-                json.put("fiyati", p.getFiyat());
-                json.put("miktari", p.getMiktar());
-                json.put("tutar", p.getTutar());
+                json.put("invoice_id", i.getIdInvoice());
+                json.put("date", i.getDate());
+                json.put("totalBeforeDiscount", i.getTotalBeforeDiscount());
+                json.put("discount", i.getDiscount());
+                json.put("totalAfterDiscount", i.getTotalAfterDiscount());
                 jsonArray.put(json);
             }
 

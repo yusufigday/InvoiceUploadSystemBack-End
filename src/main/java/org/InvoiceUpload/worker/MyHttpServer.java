@@ -1,24 +1,15 @@
 package org.InvoiceUpload.worker;
 
 import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpExchange;
-import org.InvoiceUpload.db.SQLManager;
-import org.json.JSONObject;
+import org.InvoiceUpload.controller.CustomerController;
 
-import com.sun.net.httpserver.HttpServer;
+import org.InvoiceUpload.controller.InvoiceItemsController;
 import org.InvoiceUpload.controller.ItemController;
-import org.InvoiceUpload.controller.ProductController;
+import org.InvoiceUpload.controller.InvoiceController;
 
-import java.io.InputStream;
 import java.net.InetSocketAddress;
 
 import java.io.*;
-import java.net.InetSocketAddress;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.util.List;
-import java.util.Map;
 
 public class MyHttpServer {
 
@@ -28,7 +19,9 @@ public class MyHttpServer {
         server = HttpServer.create(new InetSocketAddress(port), 0);
 
         server.createContext("/items", new ItemController());
-        server.createContext("/products", new ProductController());
+        server.createContext("/invoice", new InvoiceController());
+        server.createContext("/customers", new CustomerController());
+        server.createContext("/invoiceitems", new InvoiceItemsController());
 
         server.setExecutor(null);
     }

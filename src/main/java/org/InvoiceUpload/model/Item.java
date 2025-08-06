@@ -2,16 +2,21 @@ package org.InvoiceUpload.model;
 
 public class Item {
     private int idItems;
-    private  String urunAdi;
+    private  String name;
+    private int price;
 
-    public Item(int idItems, String urunAdi) {
+    public Item(int idItems, String name,int price) {
         this.idItems = idItems;
-        this.urunAdi = urunAdi;
+        this.name = name;
+        this.price = price;
     }
     public int getIdItems() {
         return idItems;
     }
-    public String getUrunAdi() {
-        return urunAdi;
+    public String getName() {
+        return name;
+    }
+    public int getPrice() {
+        return price;
     }
 }

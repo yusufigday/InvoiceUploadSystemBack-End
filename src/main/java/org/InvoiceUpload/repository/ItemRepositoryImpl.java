@@ -2,21 +2,20 @@ package org.InvoiceUpload.repository;
 
 import org.InvoiceUpload.db.SQLManager;
 import org.InvoiceUpload.model.Item;
-import org.InvoiceUpload.model.Product;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public int insert(Item item) throws Exception {
-        String sql = "INSERT INTO items(id_items, urun_adi) VALUES("
+        String sql = "INSERT INTO items(items_id, name, price) VALUES("
                 + item.getIdItems()
-                + ", '"+item.getUrunAdi()+"')";
+                + ", '"+item.getName()
+                + "', "+item.getPrice()+")";
         return SQLManager.executeUpdate(sql);
     }
 
@@ -30,8 +29,9 @@ public class ItemRepositoryImpl implements ItemRepository {
 
             while (rs.next()){
                 Item item = new Item(
-                        rs.getInt("id_items"),
-                        rs.getString("urun_adi")
+                        rs.getInt("items_id"),
+                        rs.getString("name"),
+                        rs.getInt("price")
                 );
                 items.add(item);
             }
