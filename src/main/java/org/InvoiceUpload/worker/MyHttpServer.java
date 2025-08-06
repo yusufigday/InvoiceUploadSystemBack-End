@@ -1,11 +1,8 @@
 package org.InvoiceUpload.worker;
 
 import com.sun.net.httpserver.HttpServer;
-import org.InvoiceUpload.controller.CustomerController;
-
-import org.InvoiceUpload.controller.InvoiceItemsController;
-import org.InvoiceUpload.controller.ItemController;
-import org.InvoiceUpload.controller.InvoiceController;
+import org.InvoiceUpload.controller.*;
+import org.InvoiceUpload.controller.AddInvoiceController;
 
 import java.net.InetSocketAddress;
 
@@ -22,12 +19,14 @@ public class MyHttpServer {
         server.createContext("/invoice", new InvoiceController());
         server.createContext("/customers", new CustomerController());
         server.createContext("/invoiceitems", new InvoiceItemsController());
+        server.createContext("/addinvoice", new AddInvoiceController());
+
 
         server.setExecutor(null);
     }
 
     public void start() {
         server.start();
-        System.out.println("HTTP Server Port " + server.getAddress().getPort() + " uzerinde baslatildi!");
+        System.out.println("HTTP Server Port " + server.getAddress().getPort() + " was launched on!");
     }
 }

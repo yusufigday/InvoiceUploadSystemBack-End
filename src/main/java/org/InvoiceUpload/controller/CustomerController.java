@@ -39,7 +39,7 @@ public class CustomerController implements HttpHandler {
         Customer customer = new Customer(idCustomer, name, lastName, tckn);
         boolean success = customerService.addCustomer(customer);
 
-        String response = success ? "Customer Eklendi." : "Customer eklenirken hata oluştu.";
+        String response = success ? "Customer added." : "An error occurred while adding a customer.\n";
         byte[] responseBytes = response.getBytes("UTF-8");
         exchange.sendResponseHeaders(success ? 200 : 500, responseBytes.length);
         OutputStream os = exchange.getResponseBody();

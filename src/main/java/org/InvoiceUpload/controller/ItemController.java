@@ -41,7 +41,7 @@ public class ItemController implements HttpHandler {
         Item item = new Item(idItems, urunAdi, price);
         boolean success = itemService.addItem(item);
 
-        String response = success ? "Item eklendi." : " Item eklenirken hata olustu.";
+        String response = success ? "Item added." : " An error occurred while adding the item.";
         byte[] responseBytes = response.getBytes("UTF-8");
         exchange.sendResponseHeaders(success ? 200 : 500, responseBytes.length);
         OutputStream os = exchange.getResponseBody();

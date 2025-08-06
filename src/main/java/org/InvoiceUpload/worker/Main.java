@@ -6,7 +6,7 @@ public class Main {
             MyHttpServer server = new MyHttpServer(8080);
             server.start();
         }catch (Exception e){
-            System.out.println("Sunucu başlatılırken hata oluştu: " + e.getMessage());
+            System.out.println("Error occurred while starting the server:\n " + e.getMessage());
         }
     }
 }
