@@ -45,9 +45,9 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
                         rs.getInt("invoice_id"),
                         rs.getString("date"),
                         rs.getDouble("totalBeforeDiscount"),
-                        rs.getInt("discount"),
-                        rs.getDouble("totalAfterDiscount")
+                        rs.getDouble("discount") // int ise double olarak alabilirsiniz
                 );
+
                 invoices.add(invoice);
             }
         } catch (Exception e) {

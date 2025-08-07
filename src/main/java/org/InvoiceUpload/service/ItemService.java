@@ -18,6 +18,15 @@ public class ItemService {
         }
     }
 
+    public Item getItemById(int itemId) {
+        try {
+            return ((ItemRepositoryImpl)itemRepository).getItemById(itemId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     public List<Item> getAllItems(){
         return itemRepository.getAllItems();
 

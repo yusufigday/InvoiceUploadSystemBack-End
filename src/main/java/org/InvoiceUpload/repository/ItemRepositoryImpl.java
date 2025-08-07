@@ -63,6 +63,26 @@ public class ItemRepositoryImpl implements ItemRepository {
             e.printStackTrace();
         }
 
+
+
         return items;
+    }
+
+    @Override
+    public Item getItemById(int itemId) throws Exception {
+        String sql = "SELECT * FROM items WHERE items_id = ?";
+        try(Connection conn = SQLManager.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, itemId);
+            try(ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Item(rs.getInt("items_id"),
+                            rs.getString("name"),
+                            rs.getInt("price"));
+                }else {
+                    return null;
+                }
+            }
+        }
     }
 }

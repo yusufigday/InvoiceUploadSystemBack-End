@@ -1,5 +1,7 @@
 package org.InvoiceUpload.worker;
 
+import org.InvoiceUpload.service.ItemService;
+
 public class Main {
     public static void main(String[] args) {
         try {

@@ -1,5 +1,6 @@
 package org.InvoiceUpload.repository;
 
+
 import org.InvoiceUpload.model.Invoice;
 import org.InvoiceUpload.model.Item;
 
@@ -11,4 +12,5 @@ public interface ItemRepository {
     int insertWithConnection(Item item, Connection conn) throws Exception;
     Item getById(Integer id) throws Exception;
     List<Item> getAllItems();
+    Item getItemById(int itemId) throws Exception;
 }

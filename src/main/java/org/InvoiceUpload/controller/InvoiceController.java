@@ -40,26 +40,18 @@ public class InvoiceController implements HttpHandler {
         int idInvoice = json.getInt("invoice_id");
         String date = json.getString("date");
         double totalBeforeDiscount = json.getDouble("totalBeforeDiscount");
-        int discount = json.getInt("discount");
-        double totalAfterDiscount = json.getDouble("totalAfterDiscount");
+        double discount = json.getDouble("discount");
 
-        Invoice invoice = new Invoice(idInvoice, date, totalBeforeDiscount, discount, totalAfterDiscount);
-        JSONArray itemsArray = json.getJSONArray("items");
-        // items JSON dizisi bekleniyor:
-        // örnek:
-        // "items": [
-        //   { "invoiceitems_id":1, "itemId":2, "productQuantity":3, "price":50, "totalPrice":150 },
-        //   ...
-        // ]
+        Invoice invoice = new Invoice(idInvoice, date, totalBeforeDiscount, discount);
+
+        org.json.JSONArray itemsArray = json.getJSONArray("items");
 
         boolean success = false;
 
         try (Connection conn = SQLManager.getConnection()) {
-            conn.setAutoCommit(false); // Transaction başlat
+            conn.setAutoCommit(false);
 
-            // 1. invoice ekle
             if (invoiceService.addInvoiceWithConnection(conn, invoice)) {
-                // 2. invoice items ekle
                 for (int i = 0; i < itemsArray.length(); i++) {
                     JSONObject itemJson = itemsArray.getJSONObject(i);
                     InvoiceItems invoiceItem = new InvoiceItems(
@@ -93,6 +85,7 @@ public class InvoiceController implements HttpHandler {
         os.write(responseBytes);
         os.close();
     }
+
 
     private void handleGet(HttpExchange exchange) throws IOException {
         var invoice = invoiceService.getAllInvoice();

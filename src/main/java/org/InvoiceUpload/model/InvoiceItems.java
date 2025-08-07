@@ -8,8 +8,7 @@ public class InvoiceItems {
     private int productPrice;
     private int totalPrice;
 
-    public InvoiceItems(int idInvoiceItems, int invoiceId, int itemId,
-                        int productQuantity, int productPrice, int totalPrice) {
+    public InvoiceItems(int idInvoiceItems, int invoiceId, int itemId, int productQuantity, int productPrice, int totalPrice) {
         this.idInvoiceItems = idInvoiceItems;
         this.invoiceId = invoiceId;
         this.itemId = itemId;
@@ -17,6 +16,7 @@ public class InvoiceItems {
         this.productPrice = productPrice;
         this.totalPrice = totalPrice;
     }
+
 
 
 
