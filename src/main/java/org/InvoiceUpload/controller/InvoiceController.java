@@ -25,7 +25,9 @@ public class InvoiceController implements HttpHandler {
             handlePost(exchange);
         } else if (method.equalsIgnoreCase("GET")) {
             handleGet(exchange);
-        } else {
+        } else if(method.equalsIgnoreCase("DELETE")) {
+            handleDelete(exchange);
+        }else {
             exchange.sendResponseHeaders(405, -1);
         }
     }
@@ -107,5 +109,45 @@ public class InvoiceController implements HttpHandler {
         OutputStream os = exchange.getResponseBody();
         os.write(responseBytes);
         os.close();
+    }
+
+    private void handleDelete(HttpExchange exchange) throws IOException {
+        String query = exchange.getRequestURI().getQuery();
+        int invoiceId = -1;
+
+        if (query != null){
+            for (String param : query.split("&")) {
+                String[] keyValue = param.split("=");
+                if (keyValue.length == 2 && keyValue[0].equals("invoice_id")) {
+                    try {
+                        invoiceId = Integer.parseInt(keyValue[1]);
+                    }catch (NumberFormatException e){
+                        invoiceId = -1;
+                    }
+                }
+            }
+        }
+        String response;
+        int statusCode;
+        if (invoiceId == -1) {
+            response = "Missing or invalid invoice_id parameter.";
+            statusCode = 400;
+        }else {
+            boolean success = new InvoiceService().deleteInvoiceById(invoiceId);
+            if (success){
+                response = "Invoice (and related invoiceitems) deleted successfully.";
+                statusCode = 200;
+            }else {
+                response = "Failed to delete invoice.";
+                statusCode = 500;
+            }
+        }
+
+        byte[] responseBytes = response.getBytes("UTF-8");
+        exchange.sendResponseHeaders(statusCode, responseBytes.length);
+        OutputStream os = exchange.getResponseBody();
+        os.write(responseBytes);
+        os.close();
+
     }
 }

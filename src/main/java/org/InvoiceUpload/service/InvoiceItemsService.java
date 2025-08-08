@@ -1,10 +1,13 @@
 package org.InvoiceUpload.service;
 
+import org.InvoiceUpload.db.SQLManager;
 import org.InvoiceUpload.model.InvoiceItems;
 import org.InvoiceUpload.repository.InvoiceItemsRepository;
 import org.InvoiceUpload.repository.InvoiceItemsRepositoryImpl;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.List;
 
 public class InvoiceItemsService {

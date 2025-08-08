@@ -31,4 +31,15 @@ public class InvoiceService {
     public List<Invoice> getAllInvoice() {
         return invoiceRepository.getAllInvoice();
     }
+
+    public boolean deleteInvoiceById(int invoiceId){
+        try{
+            return ((InvoiceRepositoryImpl) invoiceRepository).deleteById(invoiceId) > 0;
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

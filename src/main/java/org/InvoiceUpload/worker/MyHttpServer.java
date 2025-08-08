@@ -20,6 +20,7 @@ public class MyHttpServer {
         server.createContext("/customers", new CustomerController());
         server.createContext("/invoiceitems", new InvoiceItemsController());
         server.createContext("/addinvoice", new AddInvoiceController());
+        server.createContext("/deleteinvoice", new DeleteInvoiceController());
 
 
         server.setExecutor(null);

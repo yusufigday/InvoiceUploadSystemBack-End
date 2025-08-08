@@ -35,7 +35,7 @@ public class InvoiceItemsController implements HttpHandler {
 
 
         int invoiceItemsId = json.getInt("invoiceitems_id");
-        int invoiceId = json.getInt("invoiceId");
+        int invoiceId = json.getInt("invoice_id");
         int itemId = json.getInt("itemId");
         int productQuantity = json.getInt("productQuantity");
         int price = json.getInt("price");
@@ -52,6 +52,7 @@ public class InvoiceItemsController implements HttpHandler {
         os.close();
     }
 
+
     private void handleGet(HttpExchange exchange) throws IOException {
         var invoiceItems = invoiceItemsService.getAllInvoiceItems();
 
@@ -59,7 +60,7 @@ public class InvoiceItemsController implements HttpHandler {
         for (InvoiceItems invoiceItem : invoiceItems) {
             JSONObject json = new JSONObject();
             json.put("invoiceitems_id", invoiceItem.getIdInvoiceItems());
-            json.put("invoiceId", invoiceItem.getInvoiceId());
+            json.put("invoice_id", invoiceItem.getInvoiceId());
             json.put("itemId", invoiceItem.getItemId());
             json.put("productQuantity", invoiceItem.getProductQuantity());
             json.put("price", invoiceItem.getProductPrice());
@@ -74,6 +75,7 @@ public class InvoiceItemsController implements HttpHandler {
         os.write(responseBytes);
         os.close();
     }
+
 }
 
 

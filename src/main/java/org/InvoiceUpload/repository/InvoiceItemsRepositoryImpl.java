@@ -12,7 +12,7 @@ import java.util.List;
 public class InvoiceItemsRepositoryImpl implements InvoiceItemsRepository {
     @Override
     public int insert(InvoiceItems invoiceItems) throws Exception {
-        String sql = "INSERT INTO invoiceitems(invoiceitems_id, invoiceId, itemId, productQuantity, price, totalPrice) VALUES(" +
+        String sql = "INSERT INTO invoiceitems(invoiceitems_id, invoice_id, itemId, productQuantity, price, totalPrice) VALUES(" +
                 invoiceItems.getIdInvoiceItems() + ", '" +
                 invoiceItems.getInvoiceId() + "', '" +
                 invoiceItems.getItemId() + "', '" +
@@ -23,7 +23,7 @@ public class InvoiceItemsRepositoryImpl implements InvoiceItemsRepository {
     }
 
     public int insertWithConnection(Connection conn, InvoiceItems invoiceItems) throws Exception {
-        String sql = "INSERT INTO invoiceitems(invoiceitems_id, invoiceId, itemId, productQuantity, price, totalPrice) VALUES(?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO invoiceitems(invoiceitems_id, invoince_id, itemId, productQuantity, price, totalPrice) VALUES(?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, invoiceItems.getIdInvoiceItems());
             ps.setInt(2, invoiceItems.getInvoiceId());
@@ -45,7 +45,7 @@ public class InvoiceItemsRepositoryImpl implements InvoiceItemsRepository {
             while (rs.next()) {
                 InvoiceItems invoiceItems = new InvoiceItems(
                         rs.getInt("invoiceitems_id"),
-                        rs.getInt("invoiceId"),
+                        rs.getInt("invoince_id"),
                         rs.getInt("itemId"),
                         rs.getInt("productQuantity"),
                         rs.getInt("price"),

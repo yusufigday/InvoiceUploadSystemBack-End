@@ -55,4 +55,14 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
         }
         return invoices;
     }
+
+    @Override
+    public int deleteById(int invoiceId) throws Exception {
+        String sql = "DELETE FROM invoice WHERE invoice_id = ?";
+        try(Connection conn = SQLManager.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, invoiceId);
+            return ps.executeUpdate();
+        }
+    }
 }
