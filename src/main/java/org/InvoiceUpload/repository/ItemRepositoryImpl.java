@@ -9,12 +9,14 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+// Implementation of ItemRepository
 public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public int insert(Item item) throws Exception {
-        String sql = "INSERT INTO items(name, price) VALUES("
-                + "'" + item.getName()
+        // Insert item into the database
+        String sql = "INSERT INTO items(name, price) VALUES('"
+                + item.getName()
                 + "', " + item.getPrice() + ")";
         return SQLManager.executeUpdate(sql);
     }
@@ -23,11 +25,13 @@ public class ItemRepositoryImpl implements ItemRepository {
     public List<Item> getAllItems() {
         List<Item> items = new ArrayList<>();
         String sql = "SELECT * FROM items";
+
         try (Connection conn = SQLManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
+                // Map each row to an Item object
                 Item item = new Item(
                         rs.getInt("items_id"),
                         rs.getString("name"),
@@ -36,9 +40,8 @@ public class ItemRepositoryImpl implements ItemRepository {
                 items.add(item);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Print exception if query fails
         }
-
 
         return items;
     }
@@ -46,16 +49,22 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Item getItemById(int itemId) throws Exception {
         String sql = "SELECT * FROM items WHERE items_id = ?";
+
         try (Connection conn = SQLManager.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, itemId);
+
+            ps.setInt(1, itemId); // Set ID parameter for query
+
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Item(rs.getInt("items_id"),
+                    // Map the single row to an Item object
+                    return new Item(
+                            rs.getInt("items_id"),
                             rs.getString("name"),
-                            rs.getInt("price"));
+                            rs.getInt("price")
+                    );
                 } else {
-                    return null;
+                    return null; // Return null if no item found
                 }
             }
         }

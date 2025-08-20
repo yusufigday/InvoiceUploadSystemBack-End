@@ -1,22 +1,24 @@
 package org.InvoiceUpload.model;
 
+// Model class representing a customer
 public class Customer {
-    private String adi;
-    private String soyadi;
-    private String tckn;
+    private String firstName;
+    private String lastName;
+    private String tckn; // Turkish identification number
 
-    public Customer(String adi, String soyadi, String tckn) {
-        this.adi = adi;
-        this.soyadi = soyadi;
+    // Constructor to initialize a customer
+    public Customer(String firstName, String lastName, String tckn) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.tckn = tckn;
     }
 
-    public String getAdi() {
-        return adi;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public String getSoyadi() {
-        return soyadi;
+    public String getLastName() {
+        return lastName;
     }
 
     public String getTckn() {
