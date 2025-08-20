@@ -2,152 +2,94 @@ package org.InvoiceUpload.controller;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import org.InvoiceUpload.db.SQLManager;
 import org.InvoiceUpload.model.Invoice;
-import org.InvoiceUpload.model.InvoiceItems;
 import org.InvoiceUpload.service.InvoiceService;
-import org.InvoiceUpload.service.InvoiceItemsService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.sql.Connection;
+import java.util.List;
 
 public class InvoiceController implements HttpHandler {
     private InvoiceService invoiceService = new InvoiceService();
-    private InvoiceItemsService invoiceItemsService = new InvoiceItemsService();
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
 
-        if (method.equalsIgnoreCase("POST")) {
-            handlePost(exchange);
-        } else if (method.equalsIgnoreCase("GET")) {
-            handleGet(exchange);
-        } else if(method.equalsIgnoreCase("DELETE")) {
-            handleDelete(exchange);
-        }else {
-            exchange.sendResponseHeaders(405, -1);
-        }
-    }
+        if (method.equalsIgnoreCase("GET")) {
+            String path = exchange.getRequestURI().getPath();
 
-    private void handlePost(HttpExchange exchange) throws IOException {
-        InputStream is = exchange.getRequestBody();
-        String body = new BufferedReader(new InputStreamReader(is))
-                .lines().reduce("", (acc, line) -> acc + line);
-
-        JSONObject json = new JSONObject(body);
-
-        int idInvoice = json.getInt("invoice_id");
-        String date = json.getString("date");
-        double totalBeforeDiscount = json.getDouble("totalBeforeDiscount");
-        double discount = json.getDouble("discount");
-
-        Invoice invoice = new Invoice(idInvoice, date, totalBeforeDiscount, discount);
-
-        org.json.JSONArray itemsArray = json.getJSONArray("items");
-
-        boolean success = false;
-
-        try (Connection conn = SQLManager.getConnection()) {
-            conn.setAutoCommit(false);
-
-            if (invoiceService.addInvoiceWithConnection(conn, invoice)) {
-                for (int i = 0; i < itemsArray.length(); i++) {
-                    JSONObject itemJson = itemsArray.getJSONObject(i);
-                    InvoiceItems invoiceItem = new InvoiceItems(
-                            itemJson.getInt("invoiceitems_id"),
-                            idInvoice,
-                            itemJson.getInt("itemId"),
-                            itemJson.getInt("productQuantity"),
-                            itemJson.getInt("price"),
-                            itemJson.getInt("totalPrice")
-                    );
-                    boolean itemAdded = invoiceItemsService.addInvoiceItemWithConnection(conn, invoiceItem);
-                    if (!itemAdded) {
-                        throw new Exception("InvoiceItem eklenemedi!");
-                    }
-                }
-                conn.commit();
-                success = true;
+            if (path.matches(".*/invoices/\\d+$")) {
+                int invoiceId = Integer.parseInt(path.substring(path.lastIndexOf("/") + 1));
+                handleGetById(exchange, invoiceId);
             } else {
-                throw new Exception("Invoice eklenemedi!");
+                handleGetAll(exchange);
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            success = false;
         }
-
-        String response = success ? "Invoice and InvoiceItems added." : "An error occurred while registering.";
-        byte[] responseBytes = response.getBytes("UTF-8");
-        exchange.sendResponseHeaders(success ? 200 : 500, responseBytes.length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(responseBytes);
-        os.close();
     }
 
+    private void handleGetAll(HttpExchange exchange) throws IOException {
+        List<Invoice> invoices = invoiceService.getAllInvoice();
+        JSONArray jsonInvoices = new JSONArray();
+        StringBuilder xmlBuilder = new StringBuilder("<invoices>");
 
-    private void handleGet(HttpExchange exchange) throws IOException {
-        var invoice = invoiceService.getAllInvoice();
+        for (Invoice invoice : invoices) {
+            JSONObject jsonInvoice = new JSONObject();
+            jsonInvoice.put("invoice_id", invoice.getIdInvoice());
+            jsonInvoice.put("date", invoice.getDate());
+            jsonInvoice.put("invoiceSerialNumber", invoice.getInvoiceSerialNumber());
+            jsonInvoice.put("invoiceNumber", invoice.getInvoiceNumber());
+            jsonInvoice.put("totalBeforeDiscount", invoice.getTotalBeforeDiscount());
+            jsonInvoice.put("discount", invoice.getDiscount());
+            jsonInvoice.put("totalAfterDiscount", invoice.getTotalAfterDiscount());
 
-        org.json.JSONArray jsonArray = new org.json.JSONArray();
-        for (Invoice i : invoice) {
-            JSONObject json = new JSONObject();
-            json.put("invoice_id", i.getIdInvoice());
-            json.put("date", i.getDate());
-            json.put("totalBeforeDiscount", i.getTotalBeforeDiscount());
-            json.put("discount", i.getDiscount());
-            json.put("totalAfterDiscount", i.getTotalAfterDiscount());
-            jsonArray.put(json);
+            jsonInvoices.put(jsonInvoice);
+
+            xmlBuilder.append("<invoice>").append("<invoice_id>").append(invoice.getIdInvoice()).append("</invoice_id>").append("<date>").append(invoice.getDate()).append("</date>").append("<invoiceSerialNumber>").append(invoice.getInvoiceSerialNumber()).append("</invoiceSerialNumber>").append("<invoiceNumber>").append(invoice.getInvoiceNumber()).append("</invoiceNumber>").append("<totalBeforeDiscount>").append(invoice.getTotalBeforeDiscount()).append("</totalBeforeDiscount>").append("<discount>").append(invoice.getDiscount()).append("</discount>").append("<totalAfterDiscount>").append(invoice.getTotalAfterDiscount()).append("</totalAfterDiscount>").append("</invoice>");
         }
 
-        byte[] responseBytes = jsonArray.toString().getBytes("UTF-8");
+        xmlBuilder.append("</invoices>");
+
+        JSONObject finalResponse = new JSONObject();
+        finalResponse.put("Jsoncontent", new JSONObject().put("invoices", jsonInvoices));
+        finalResponse.put("Xmlcontent", xmlBuilder.toString());
+
+        sendResponse(exchange, 200, finalResponse.toString());
+    }
+
+    private void handleGetById(HttpExchange exchange, int invoiceId) throws IOException {
+        Invoice invoice = invoiceService.getInvoiceById(invoiceId);
+
+        if (invoice == null) {
+            sendResponse(exchange, 404, "Invoice not found");
+            return;
+        }
+
+        JSONObject jsonInvoice = new JSONObject();
+        jsonInvoice.put("invoice_id", invoice.getIdInvoice());
+        jsonInvoice.put("date", invoice.getDate());
+        jsonInvoice.put("invoiceSerialNumber", invoice.getInvoiceSerialNumber());
+        jsonInvoice.put("invoiceNumber", invoice.getInvoiceNumber());
+        jsonInvoice.put("totalBeforeDiscount", invoice.getTotalBeforeDiscount());
+        jsonInvoice.put("discount", invoice.getDiscount());
+        jsonInvoice.put("totalAfterDiscount", invoice.getTotalAfterDiscount());
+
+        String xml = "<invoices><invoice>" + "<invoice_id>" + invoice.getIdInvoice() + "</invoice_id>" + "<date>" + invoice.getDate() + "</date>" + "<invoiceSerialNumber>" + invoice.getInvoiceSerialNumber() + "</invoiceSerialNumber>" + "<invoiceNumber>" + invoice.getInvoiceNumber() + "</invoiceNumber>" + "<totalBeforeDiscount>" + invoice.getTotalBeforeDiscount() + "</totalBeforeDiscount>" + "<discount>" + invoice.getDiscount() + "</discount>" + "<totalAfterDiscount>" + invoice.getTotalAfterDiscount() + "</totalAfterDiscount>" + "</invoice></invoices>";
+
+        JSONObject finalResponse = new JSONObject();
+        finalResponse.put("Jsoncontent", jsonInvoice);
+        finalResponse.put("Xmlcontent", xml);
+
+        sendResponse(exchange, 200, finalResponse.toString());
+    }
+
+    private void sendResponse(HttpExchange exchange, int statusCode, String response) throws IOException {
+        byte[] responseBytes = response.getBytes("UTF-8");
         exchange.getResponseHeaders().set("Content-Type", "application/json");
-        exchange.sendResponseHeaders(200, responseBytes.length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(responseBytes);
-        os.close();
-    }
-
-    private void handleDelete(HttpExchange exchange) throws IOException {
-        String query = exchange.getRequestURI().getQuery();
-        int invoiceId = -1;
-
-        if (query != null){
-            for (String param : query.split("&")) {
-                String[] keyValue = param.split("=");
-                if (keyValue.length == 2 && keyValue[0].equals("invoice_id")) {
-                    try {
-                        invoiceId = Integer.parseInt(keyValue[1]);
-                    }catch (NumberFormatException e){
-                        invoiceId = -1;
-                    }
-                }
-            }
-        }
-        String response;
-        int statusCode;
-        if (invoiceId == -1) {
-            response = "Missing or invalid invoice_id parameter.";
-            statusCode = 400;
-        }else {
-            boolean success = new InvoiceService().deleteInvoiceById(invoiceId);
-            if (success){
-                response = "Invoice (and related invoiceitems) deleted successfully.";
-                statusCode = 200;
-            }else {
-                response = "Failed to delete invoice.";
-                statusCode = 500;
-            }
-        }
-
-        byte[] responseBytes = response.getBytes("UTF-8");
         exchange.sendResponseHeaders(statusCode, responseBytes.length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(responseBytes);
-        os.close();
-
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(responseBytes);
+        }
     }
 }

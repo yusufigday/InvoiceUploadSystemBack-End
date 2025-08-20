@@ -11,7 +11,7 @@ public class Main {
             MyHttpServer server = new MyHttpServer(8080);
             server.start();
             ItemRepositoryImpl itemRepository = new ItemRepositoryImpl();
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Error occurred while starting the server:\n " + e.getMessage());
         }
     }

@@ -9,11 +9,11 @@ import java.util.List;
 public class CustomerService {
     private CustomerRepository customerRepository = new CustomerRepositoryImpl();
 
-    public boolean addCustomer(Customer customer){
-        try{
+    public boolean addCustomer(Customer customer) {
+        try {
             return customerRepository.insert(customer) > 0;
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }

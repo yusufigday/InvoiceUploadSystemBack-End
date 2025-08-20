@@ -2,10 +2,8 @@ package org.InvoiceUpload.controller;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import org.InvoiceUpload.model.Invoice;
 import org.InvoiceUpload.model.InvoiceItems;
 import org.InvoiceUpload.service.InvoiceItemsService;
-import org.InvoiceUpload.service.InvoiceService;
 import org.json.JSONObject;
 
 import java.io.*;
@@ -17,12 +15,12 @@ public class InvoiceItemsController implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
 
-        if(method.equalsIgnoreCase("POST")){
+        if (method.equalsIgnoreCase("POST")) {
             handlePost(exchange);
-        }else if (method.equalsIgnoreCase("GET")){
+        } else if (method.equalsIgnoreCase("GET")) {
             handleGet(exchange);
-        }else{
-            exchange.sendResponseHeaders(405,-1);
+        } else {
+            exchange.sendResponseHeaders(405, -1);
         }
     }
 
@@ -41,7 +39,7 @@ public class InvoiceItemsController implements HttpHandler {
         int price = json.getInt("price");
         int totalPrice = json.getInt("totalPrice");
 
-        InvoiceItems invoiceItems = new InvoiceItems(invoiceItemsId,invoiceId , itemId, productQuantity, price, totalPrice);
+        InvoiceItems invoiceItems = new InvoiceItems(invoiceItemsId, invoiceId, itemId, productQuantity, price, totalPrice);
         boolean success = invoiceItemsService.addInvoiceItem(invoiceItems);
 
         String response = success ? "InvoiceItems added." : "An error occured while adding an invoice items";

@@ -4,13 +4,15 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.InvoiceUpload.model.Item;
 import org.InvoiceUpload.service.ItemService;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
+import java.util.List;
 
 public class ItemController implements HttpHandler {
 
-    private ItemService itemService=new ItemService();
+    private ItemService itemService = new ItemService();
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
@@ -21,54 +23,64 @@ public class ItemController implements HttpHandler {
         } else if (method.equalsIgnoreCase("GET")) {
             handleGet(exchange);
         } else {
-            exchange.sendResponseHeaders(405, -1); // Method Not Allowed
+            exchange.sendResponseHeaders(405, -1);
         }
     }
 
-
-
     private void handlePost(HttpExchange exchange) throws IOException {
         InputStream is = exchange.getRequestBody();
-        String body = new BufferedReader(new InputStreamReader(is))
-                .lines().reduce("", (acc,line) -> acc + line);
+        String body = new BufferedReader(new InputStreamReader(is)).lines().reduce("", (acc, line) -> acc + line);
 
         JSONObject json = new JSONObject(body);
 
-        int idItems =  json.getInt("items_id");
         String urunAdi = json.getString("name");
         int price = json.getInt("price");
 
-        Item item = new Item(idItems, urunAdi, price);
+        Item item = new Item(urunAdi, price);
         boolean success = itemService.addItem(item);
 
-        String response = success ? "Item added." : " An error occurred while adding the item.";
+        String response = success ? "Item added." : "An error occurred while adding the item.";
         byte[] responseBytes = response.getBytes("UTF-8");
         exchange.sendResponseHeaders(success ? 200 : 500, responseBytes.length);
         OutputStream os = exchange.getResponseBody();
         os.write(responseBytes);
         os.close();
-
     }
 
     private void handleGet(HttpExchange exchange) throws IOException {
-        var items = itemService.getAllItems();
+        List<Item> items = itemService.getAllItems();
 
-        org.json.JSONArray jsonArray = new org.json.JSONArray();
+        JSONArray jsonItems = new JSONArray();
+        StringBuilder xmlBuilder = new StringBuilder();
+        xmlBuilder.append("<items>");
+
+        JSONObject jsonContent = new JSONObject();
+        jsonContent.put("items", jsonItems);
+
+        JSONObject response = new JSONObject();
+        response.put("Jsoncontent", jsonContent);
+        response.put("Xmlcontent", xmlBuilder.toString());
+
         for (Item item : items) {
-            JSONObject json  = new JSONObject();
-            json.put("id_items", item.getIdItems());
-            json.put("urun_adi", item.getName());
-            json.put("price", item.getPrice());
-            jsonArray.put(json);
+            JSONObject jsonItem = new JSONObject();
+            jsonItem.put("id", item.getIdItems());
+            jsonItem.put("name", item.getName());
+            jsonItem.put("price", item.getPrice());
+            jsonItems.put(jsonItem);
+
+            xmlBuilder.append("<item>").append("<id>").append(item.getIdItems()).append("</id>").append("<name>").append(item.getName()).append("</name>").append("<price>").append(item.getPrice()).append("</price>").append("</item>");
         }
 
-        byte[] responseBytes = jsonArray.toString().getBytes("UTF-8");
+        xmlBuilder.append("</items>");
+
+        byte[] responseBytes = response.toString().getBytes("UTF-8");
+
         exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(200, responseBytes.length);
+
         OutputStream os = exchange.getResponseBody();
         os.write(responseBytes);
         os.close();
-
-
     }
+
 }

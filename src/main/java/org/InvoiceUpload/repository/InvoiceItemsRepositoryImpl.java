@@ -6,32 +6,61 @@ import org.InvoiceUpload.model.InvoiceItems;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class InvoiceItemsRepositoryImpl implements InvoiceItemsRepository {
+
     @Override
     public int insert(InvoiceItems invoiceItems) throws Exception {
-        String sql = "INSERT INTO invoiceitems(invoiceitems_id, invoice_id, itemId, productQuantity, price, totalPrice) VALUES(" +
-                invoiceItems.getIdInvoiceItems() + ", '" +
-                invoiceItems.getInvoiceId() + "', '" +
-                invoiceItems.getItemId() + "', '" +
-                invoiceItems.getProductQuantity() + "', '" +
-                invoiceItems.getProductPrice() + "', '" +
-                invoiceItems.getTotalPrice() + "')";
-        return SQLManager.executeUpdate(sql);
+        String sql = "INSERT INTO invoiceitems (invoice_id, itemId, productQuantity, price, totalPrice) " +
+                "VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = SQLManager.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setInt(1, invoiceItems.getInvoiceId());
+            ps.setInt(2, invoiceItems.getItemId());
+            ps.setInt(3, invoiceItems.getProductQuantity());
+            ps.setInt(4, invoiceItems.getProductPrice());
+            ps.setInt(5, invoiceItems.getTotalPrice());
+
+            int affected = ps.executeUpdate();
+
+            if (affected > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        invoiceItems.setIdInvoiceItems(rs.getInt(1)); // AUTO_INCREMENT ID set ediliyor
+                    }
+                }
+            }
+
+            return affected;
+        }
     }
 
     public int insertWithConnection(Connection conn, InvoiceItems invoiceItems) throws Exception {
-        String sql = "INSERT INTO invoiceitems(invoiceitems_id, invoince_id, itemId, productQuantity, price, totalPrice) VALUES(?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, invoiceItems.getIdInvoiceItems());
-            ps.setInt(2, invoiceItems.getInvoiceId());
-            ps.setInt(3, invoiceItems.getItemId());
-            ps.setInt(4, invoiceItems.getProductQuantity());
-            ps.setInt(5, invoiceItems.getProductPrice());
-            ps.setInt(6, invoiceItems.getTotalPrice());
-            return ps.executeUpdate();
+        String sql = "INSERT INTO invoiceitems (invoice_id, itemId, productQuantity, price, totalPrice) " +
+                "VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setInt(1, invoiceItems.getInvoiceId());
+            ps.setInt(2, invoiceItems.getItemId());
+            ps.setInt(3, invoiceItems.getProductQuantity());
+            ps.setInt(4, invoiceItems.getProductPrice());
+            ps.setInt(5, invoiceItems.getTotalPrice());
+
+            int affected = ps.executeUpdate();
+
+            if (affected > 0) {
+                try (ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        invoiceItems.setIdInvoiceItems(rs.getInt(1));
+                    }
+                }
+            }
+
+            return affected;
         }
     }
 
@@ -45,7 +74,7 @@ public class InvoiceItemsRepositoryImpl implements InvoiceItemsRepository {
             while (rs.next()) {
                 InvoiceItems invoiceItems = new InvoiceItems(
                         rs.getInt("invoiceitems_id"),
-                        rs.getInt("invoince_id"),
+                        rs.getInt("invoice_id"),
                         rs.getInt("itemId"),
                         rs.getInt("productQuantity"),
                         rs.getInt("price"),
@@ -59,8 +88,4 @@ public class InvoiceItemsRepositoryImpl implements InvoiceItemsRepository {
         return invoiceitems;
     }
 
-    @Override
-    public int insertWithConnection(InvoiceItems invoiceItems, Connection conn) {
-        return 0;
-    }
 }

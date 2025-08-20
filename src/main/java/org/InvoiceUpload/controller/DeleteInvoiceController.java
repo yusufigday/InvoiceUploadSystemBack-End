@@ -3,11 +3,8 @@ package org.InvoiceUpload.controller;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import org.InvoiceUpload.service.InvoiceService;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 
 public class DeleteInvoiceController implements HttpHandler {
@@ -21,21 +18,17 @@ public class DeleteInvoiceController implements HttpHandler {
             return;
         }
 
-        // Request body oku
-        BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody()));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            sb.append(line);
-        }
-        String body = sb.toString();
-
+        String path = exchange.getRequestURI().getPath();
+        String[] parts = path.split("/");
         String response;
         int statusCode;
 
         try {
-            JSONObject json = new JSONObject(body);
-            int invoiceId = json.getInt("invoice_id");
+            if (parts.length < 3) {
+                throw new IllegalArgumentException("Eksik ID parametresi.");
+            }
+
+            int invoiceId = Integer.parseInt(parts[2]);
 
             boolean success = invoiceService.deleteInvoiceById(invoiceId);
 
@@ -48,7 +41,7 @@ public class DeleteInvoiceController implements HttpHandler {
             }
 
         } catch (Exception e) {
-            response = "Invalid request body or missing invoice_id.";
+            response = "Invalid or missing invoice ID.";
             statusCode = 400;
         }
 

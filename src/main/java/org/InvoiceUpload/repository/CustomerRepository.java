@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface CustomerRepository {
     int insert(Customer customer) throws Exception;
+
     List<Customer> getAllCustomers();
 }

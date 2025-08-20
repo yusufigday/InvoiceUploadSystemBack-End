@@ -17,11 +17,12 @@ public class InvoiceItems {
         this.totalPrice = totalPrice;
     }
 
-
-
-
     public int getIdInvoiceItems() {
         return idInvoiceItems;
+    }
+
+    public int getInvoiceId() {
+        return invoiceId;
     }
 
     public int getItemId() {
@@ -40,7 +41,8 @@ public class InvoiceItems {
         return totalPrice;
     }
 
-    public int getInvoiceId() {
-        return invoiceId;
+    public void setIdInvoiceItems(int idInvoiceItems) {
+        this.idInvoiceItems = idInvoiceItems;
     }
+
 }

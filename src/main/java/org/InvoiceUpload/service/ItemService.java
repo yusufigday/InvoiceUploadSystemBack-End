@@ -1,18 +1,18 @@
 package org.InvoiceUpload.service;
+
 import org.InvoiceUpload.model.Item;
 import org.InvoiceUpload.repository.ItemRepository;
 import org.InvoiceUpload.repository.ItemRepositoryImpl;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ItemService {
     private ItemRepository itemRepository = new ItemRepositoryImpl();
 
-    public boolean addItem(Item item){
+    public boolean addItem(Item item) {
         try {
             return itemRepository.insert(item) > 0;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
@@ -20,14 +20,14 @@ public class ItemService {
 
     public Item getItemById(int itemId) {
         try {
-            return ((ItemRepositoryImpl)itemRepository).getItemById(itemId);
+            return ((ItemRepositoryImpl) itemRepository).getItemById(itemId);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public List<Item> getAllItems(){
+    public List<Item> getAllItems() {
         return itemRepository.getAllItems();
 
     }

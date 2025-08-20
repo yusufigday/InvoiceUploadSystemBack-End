@@ -12,24 +12,10 @@ public class SQLManager {
         return DriverManager.getConnection(CONNECTION_URL, USERNAME, PASSWORD);
     }
 
-    public static ResultSet executeQuery(String sql) throws SQLException {
-        Connection conn = getConnection();
-        if (conn != null) {
-            PreparedStatement ps = conn.prepareStatement(sql);
-            return ps.executeQuery();
-
-        }
-        return null;
-    }
-
     public static int executeUpdate(String sql) throws SQLException {
         Connection conn = getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
         return ps.executeUpdate();
     }
 
-
-    public int updateUser(String query) throws SQLException {
-        return executeUpdate(query);
-    }
 }

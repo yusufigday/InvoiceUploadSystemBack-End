@@ -17,26 +17,25 @@ public class CustomerController implements HttpHandler {
 
         if (method.equalsIgnoreCase("POST")) {
             handlePost(exchange);
-        }else if(method.equalsIgnoreCase("GET")){
+        } else if (method.equalsIgnoreCase("GET")) {
             handleGet(exchange);
-        }else{
+        } else {
             exchange.sendResponseHeaders(405, -1);
         }
     }
 
-    private void handlePost (HttpExchange exchange) throws IOException {
+    private void handlePost(HttpExchange exchange) throws IOException {
         InputStream is = exchange.getRequestBody();
         String body = new BufferedReader(new InputStreamReader(is))
-                .lines().reduce("", (acc , line) -> acc + line);
+                .lines().reduce("", (acc, line) -> acc + line);
 
         JSONObject json = new JSONObject(body);
 
-        int idCustomer = json.getInt("customers_id");
         String name = json.getString("name");
         String lastName = json.getString("lastName");
         String tckn = json.getString("TCKN");
 
-        Customer customer = new Customer(idCustomer, name, lastName, tckn);
+        Customer customer = new Customer(name, lastName, tckn);
         boolean success = customerService.addCustomer(customer);
 
         String response = success ? "Customer added." : "An error occurred while adding a customer.\n";
@@ -47,13 +46,12 @@ public class CustomerController implements HttpHandler {
         os.close();
     }
 
-    private void handleGet (HttpExchange exchange) throws IOException {
+    private void handleGet(HttpExchange exchange) throws IOException {
         var customers = customerService.getAllCustomers();
 
         org.json.JSONArray jsonArray = new org.json.JSONArray();
-        for(Customer c : customers){
+        for (Customer c : customers) {
             JSONObject json = new JSONObject();
-            json.put("customers_id", c.getIdCustomer());
             json.put("name", c.getAdi());
             json.put("lastName", c.getSoyadi());
             json.put("TCKN", c.getTckn());
@@ -61,7 +59,7 @@ public class CustomerController implements HttpHandler {
         }
 
         byte[] responseBytes = jsonArray.toString().getBytes("UTF-8");
-        exchange.getResponseHeaders().set("Content-Type" , "application/json");
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
         exchange.sendResponseHeaders(200, responseBytes.length);
         OutputStream os = exchange.getResponseBody();
         os.write(responseBytes);
